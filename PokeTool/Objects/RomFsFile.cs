@@ -20,9 +20,14 @@ namespace PokeTool.Objects
             Filename = split[3];
         }
 
+        public string GetDirectory(string romfsPath)
+        {
+            return Path.Combine(new string[] { romfsPath, TopFolder, FirstFolder, SecondFolder });
+        }
+
         public string GetFullFilePath(string romfsPath)
         {
-            return Path.Combine(new string[] { romfsPath, TopFolder, FirstFolder, SecondFolder, Filename });
+            return Path.Combine(new string[] { GetDirectory(romfsPath), Filename });
         }
 
         private string[] GetFilenameWithPath(string filenameFull)

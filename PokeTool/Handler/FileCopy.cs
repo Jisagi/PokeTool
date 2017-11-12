@@ -7,35 +7,30 @@ namespace PokeTool.Handler
 {
     static class FileCopy
     {
-        public static bool CopyAllNecessaryFiles(int game, List<RomFsFile> files, string pathRomFs, bool croFilesCheck, List<string> croFiles, string codeBin)
+        public static bool CopyAllNecessaryFiles(Pokemon.Version game, List<RomFsFile> files, string pathRomFs, List<string> croFiles, string codeBin)
         {
             try
             {
                 var appLocation = AppDomain.CurrentDomain.BaseDirectory;
-                var titleIdPath = Path.Combine(new string[] { appLocation, GetTitleId(game) }); // change to actual id
-                var titleIdPathRomFs = Path.Combine(new string[] { appLocation, GetTitleId(game), "romfs" });  // change to actual id
+                var titleIdPath = Path.Combine(new string[] { appLocation, GetTitleId(game) });
+                var titleIdPathRomFs = Path.Combine(new string[] { titleIdPath, "romfs" });
                 var titleIdPathExeFs = Path.Combine(Directory.GetParent(pathRomFs).FullName, "exefs");
-                if (!Directory.Exists(titleIdPathRomFs)) Directory.CreateDirectory(titleIdPathRomFs);
 
                 foreach (var romFsFile in files)
                 {
+                    var targetFolder = romFsFile.GetDirectory(titleIdPathRomFs);
+                    if (!Directory.Exists(targetFolder)) Directory.CreateDirectory(targetFolder);
                     var origFilePath = romFsFile.GetFullFilePath(pathRomFs);
                     var newFilePath = romFsFile.GetFullFilePath(titleIdPathRomFs);
-                    if (!Directory.Exists(Path.Combine(titleIdPathRomFs, romFsFile.TopFolder))) Directory.CreateDirectory(Path.Combine(titleIdPathRomFs, romFsFile.TopFolder));
-                    if (!Directory.Exists(Path.Combine(new string[] { titleIdPathRomFs, romFsFile.TopFolder, romFsFile.FirstFolder }))) Directory.CreateDirectory(Path.Combine(new string[] { titleIdPathRomFs, romFsFile.TopFolder, romFsFile.FirstFolder }));
-                    if (!Directory.Exists(Path.Combine(new string[] { titleIdPathRomFs, romFsFile.TopFolder, romFsFile.FirstFolder, romFsFile.SecondFolder }))) Directory.CreateDirectory(Path.Combine(new string[] { titleIdPathRomFs, romFsFile.TopFolder, romFsFile.FirstFolder, romFsFile.SecondFolder }));
                     File.Copy(origFilePath, newFilePath, true);
                 }
 
-                // copy cro files if necessary
-                if (croFilesCheck)
+                // copy cro files
+                foreach (var croFile in croFiles)
                 {
-                    foreach (var croFile in croFiles)
-                    {
-                        var origFilePath = Path.Combine(pathRomFs, croFile);
-                        var newFilePath = Path.Combine(titleIdPathRomFs, croFile);
-                        File.Copy(origFilePath, newFilePath, true);
-                    }
+                    var origFilePath = Path.Combine(pathRomFs, croFile);
+                    var newFilePath = Path.Combine(titleIdPathRomFs, croFile);
+                    File.Copy(origFilePath, newFilePath, true);
                 }
 
                 // copy and rename to 'code.bin'
@@ -52,22 +47,26 @@ namespace PokeTool.Handler
             }
         }
 
-        private static string GetTitleId(int game)
+        private static string GetTitleId(Pokemon.Version game)
         {
             switch (game)
             {
-                case 0:
+                case Pokemon.Version.X:
                     return "000400000011C400";
-                case 1:
+                case Pokemon.Version.Y:
                     return "000400000011C500";
-                case 2:
+                case Pokemon.Version.OmegaRuby:
                     return "0004000000055D00";
-                case 3:
+                case Pokemon.Version.AlphaSaphire:
                     return "0004000000055E00";
-                case 4:
+                case Pokemon.Version.Sun:
                     return "0004000000164800";
-                case 5:
+                case Pokemon.Version.Moon:
                     return "0004000000175E00";
+                case Pokemon.Version.UltraSun:
+                    return "00040000001B5000";
+                case Pokemon.Version.UltraMoon:
+                    return "00040000001B5100";
                 default:
                     return "titleID";
             }

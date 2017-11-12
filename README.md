@@ -1,7 +1,7 @@
 # PokeTool
-*A Tool to simplify the Pokemon randomizing process on ORAS, XY and SuMo*
+*A Tool to simplify the Pokemon randomizing process for XY, ORAS, SuMo and USUM*
 
-## How do i use this?
+## How do I use this?
 This tool is solely for the [LayeredFS guide](https://zetadesigns.github.io/randomizing-layeredfs.html).  
 If you need any further help please contact me on the [Nintendo Homebrew](https://discord.gg/C29hYvh) Discord server.
 

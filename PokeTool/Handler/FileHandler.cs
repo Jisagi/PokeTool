@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using PokeTool.Objects;
 
 namespace PokeTool.Handler
 {
@@ -31,16 +32,37 @@ namespace PokeTool.Handler
             }
         }
 
-        public List<string> GetCroFileList()
+        public List<string> GetCroFileList(Pokemon.Version version)
         {
             try
             {
                 var files = Directory.GetFiles(Path, "*.cro");
                 var fileList = new List<string>();
-                foreach (var file in files)
+
+                switch (version)
                 {
-                    fileList.Add(System.IO.Path.GetFileName(file));
+                    case Pokemon.Version.X:
+                    case Pokemon.Version.Y:
+                    case Pokemon.Version.OmegaRuby:
+                    case Pokemon.Version.AlphaSaphire:
+                        var affectedFilesGen6 = new List<string> { "DllField", "DllPoke3Select", "DllBattle" };
+                        foreach (var file in files)
+                        {
+                            if (affectedFilesGen6.Contains(System.IO.Path.GetFileNameWithoutExtension(file))) fileList.Add(System.IO.Path.GetFileName(file));
+                        }
+                        break;
+                    case Pokemon.Version.Sun:
+                    case Pokemon.Version.Moon:
+                    case Pokemon.Version.UltraSun:
+                    case Pokemon.Version.UltraMoon:
+                        var affectedFilesGen7 = new List<string> { "Shop" };
+                        foreach (var file in files)
+                        {
+                            if (affectedFilesGen7.Contains(System.IO.Path.GetFileNameWithoutExtension(file))) fileList.Add(System.IO.Path.GetFileName(file));
+                        }
+                        break;
                 }
+
                 return fileList;
             }
             catch (Exception)

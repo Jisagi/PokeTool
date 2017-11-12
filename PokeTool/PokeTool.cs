@@ -9,19 +9,19 @@ using PokeTool.Objects;
 
 namespace PokeTool
 {
-    public partial class Form1 : Form
+    public partial class PokeTool : Form
     {
         private readonly PathValidator _pathValidator = new PathValidator();
-        private bool _checkBackup = false;
-        private bool _checkRomFs = false;
+        private bool _checkBackup;
+        private bool _checkRomFs;
         private string _pathBackup;
         private string _pathRomFs;
 
-        public Form1()
+        public PokeTool()
         {
             InitializeComponent();
 
-            cboGameSelection.SelectedIndex = 0;
+            cboGameSelection.SelectedIndex = 6;
             new ToolTip().SetToolTip(cboGameSelection, "Please select the correct game, otherwise it will not work.");
             new ToolTip().SetToolTip(btnBackup, "Select the game folder inside the pk3ds backup folder.");
             new ToolTip().SetToolTip(btnRomFs, "Select the romfs folder from the extracted game files.");
@@ -38,19 +38,13 @@ namespace PokeTool
             var path = _pathValidator.FolderSelector();
             if (!_pathValidator.CheckBackupFolder(path))
             {
-                lblBackupValidator.Text = @"invalid";
-                lblBackupValidator.ForeColor = Color.Red;
-                _checkBackup = false;
-                btnStart.Enabled = false;
+                ChangeValidationState(lblBackupValidator, false, Pokemon.Validation.Backup);
                 if (path != string.Empty) MessageBox.Show(this, @"Please make sure you selected the game path inside the backup folder of pk3ds!", @"Path not valid", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            lblBackupValidator.Text = @"valid";
-            lblBackupValidator.ForeColor = Color.Green;
-            _checkBackup = true;
+            ChangeValidationState(lblBackupValidator, true, Pokemon.Validation.Backup);
             _pathBackup = path;
-            if (_checkBackup && _checkRomFs) AllChecksPositive();
         }
 
         private void btnRomFs_Click(object sender, EventArgs e)
@@ -58,31 +52,19 @@ namespace PokeTool
             var path = _pathValidator.FolderSelector();
             if (!_pathValidator.CheckRomFsFolder(path))
             {
-                lblRomFsValidator.Text = @"invalid";
-                lblRomFsValidator.ForeColor = Color.Red;
-                _checkRomFs = false;
-                btnStart.Enabled = false;
+                ChangeValidationState(lblRomFsValidator, false, Pokemon.Validation.RomFs);
                 if (path != string.Empty) MessageBox.Show(this, @"Please make sure you selected the correct romfs path!", @"Path not valid", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            lblRomFsValidator.Text = @"valid";
-            lblRomFsValidator.ForeColor = Color.Green;
-            _checkRomFs = true;
+            ChangeValidationState(lblRomFsValidator, true, Pokemon.Validation.RomFs);
             _pathRomFs = path;
-            if (_checkBackup && _checkRomFs) AllChecksPositive();
-        }
-
-        private void AllChecksPositive()
-        {
-            btnStart.Enabled = true;
-            // add other useful code here
         }
 
         private void btnStart_Click(object sender, EventArgs e)
         {
             // check if read
-            var question = MessageBox.Show(this, $@"Start the process of copying the necessary files?{Environment.NewLine}This might take a few seconds so please be patient.", @"Please choose", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+            var question = MessageBox.Show(this, $@"Start the copy process now?{Environment.NewLine}This might take a few seconds so please be patient.", @"Please choose", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (question != DialogResult.OK) return;
 
             // get files in backup folder
@@ -102,20 +84,15 @@ namespace PokeTool
             }
 
             // get cro files
-            var croFiles = new List<string>();
-            var croFilesCheck = false;
-            // OR:0, AS:1, X:2, Y:3, Su:4, Mo:5
-            if (cboGameSelection.SelectedIndex != 4 && cboGameSelection.SelectedIndex != 5)
+            // X:0, Y:1, OR:2, AS:3, Su:4, Mo:5, US: 6, UM: 7
+            var selectedGame = (Pokemon.Version)cboGameSelection.SelectedIndex;
+            var fileHandlerCro = new FileHandler(_pathRomFs);
+            var croFiles = fileHandlerCro.GetCroFileList(selectedGame);
+
+            if (croFiles.Count < 1)
             {
-                var fileHandlerCro = new FileHandler(_pathRomFs);
-                var fileListCro = fileHandlerCro.GetCroFileList();
-                if (fileListCro.Count < 1)
-                {
-                    MessageBox.Show(this, @"Error while parsing the .cro files!", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                croFiles = fileListCro;
-                croFilesCheck = true;
+                MessageBox.Show(this, @"Error while parsing the .cro files!", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
             // get code.bin
@@ -130,9 +107,33 @@ namespace PokeTool
             var codeBin = fileListCodeBin.First();
 
             // copy process
-            var copyResult = FileCopy.CopyAllNecessaryFiles(cboGameSelection.SelectedIndex, romFsFiles, _pathRomFs, croFilesCheck, croFiles, codeBin);
+            var copyResult = FileCopy.CopyAllNecessaryFiles(selectedGame, romFsFiles, _pathRomFs, croFiles, codeBin);
             if (copyResult) MessageBox.Show(this, @"Finished copying all files!", @"Done", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             else MessageBox.Show(this, $@"Error while copying the files!{Environment.NewLine}Check error-log.txt for more information.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            // reset if successful
+            if (!copyResult) return;
+            ChangeValidationState(lblBackupValidator, false, Pokemon.Validation.Backup);
+            ChangeValidationState(lblRomFsValidator, false, Pokemon.Validation.RomFs);
+        }
+
+        private void ChangeValidationState(Label lbl, bool valid, Pokemon.Validation folder)
+        {
+            lbl.Text = valid ? "valid" : "invalid";
+            lbl.ForeColor = valid ? Color.Green : Color.Red;
+
+            switch (folder)
+            {
+                case Pokemon.Validation.Backup:
+                    _checkBackup = valid;
+                    break;
+                case Pokemon.Validation.RomFs:
+                    _checkRomFs = valid;
+                    break;
+            }
+
+            if (!valid) btnStart.Enabled = false;
+            if (_checkBackup && _checkRomFs) btnStart.Enabled = true;
         }
     }
 }

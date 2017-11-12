@@ -1,6 +1,6 @@
 ﻿namespace PokeTool
 {
-    partial class Form1
+    partial class PokeTool
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PokeTool));
             this.btnBackup = new System.Windows.Forms.Button();
             this.lblBackupValidator = new System.Windows.Forms.Label();
             this.btnRomFs = new System.Windows.Forms.Button();
@@ -96,12 +96,14 @@
             this.cboGameSelection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboGameSelection.FormattingEnabled = true;
             this.cboGameSelection.Items.AddRange(new object[] {
-            "Omega Ruby",
-            "Alpha Sapphire",
             "X",
             "Y",
+            "Omega Ruby",
+            "Alpha Sapphire",
             "Sun",
-            "Moon"});
+            "Moon",
+            "Ultra Sun",
+            "Ultra Moon"});
             this.cboGameSelection.Location = new System.Drawing.Point(87, 6);
             this.cboGameSelection.Name = "cboGameSelection";
             this.cboGameSelection.Size = new System.Drawing.Size(102, 21);
