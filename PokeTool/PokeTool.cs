@@ -110,6 +110,11 @@ namespace PokeTool
                 MessageBox.Show(this, @"Could not find code.bin in exefs folder!", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            if (fileListCodeBin.Count > 1)
+            {
+                MessageBox.Show(this, $@"There ist more than one file namend code* in the exefs folder.{Environment.NewLine}Please make sure there is only one, otherwise PokeTool might use the wrong file!", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             var codeBin = fileListCodeBin.First();
 
             // copy process
