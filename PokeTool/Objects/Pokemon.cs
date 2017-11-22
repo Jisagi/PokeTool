@@ -19,11 +19,5 @@ namespace PokeTool.Objects
             UltraSun = 6,
             UltraMoon = 7
         }
-
-        public enum Validation
-        {
-            Backup,
-            RomFs
-        }
     }
 }

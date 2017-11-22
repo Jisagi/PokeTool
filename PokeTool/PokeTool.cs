@@ -17,6 +17,12 @@ namespace PokeTool
         private string _pathBackup;
         private string _pathRomFs;
 
+        enum Validation
+        {
+            Backup,
+            RomFs
+        }
+
         public PokeTool()
         {
             InitializeComponent();
@@ -38,12 +44,12 @@ namespace PokeTool
             var path = _pathValidator.FolderSelector();
             if (!_pathValidator.CheckBackupFolder(path))
             {
-                ChangeValidationState(lblBackupValidator, false, Pokemon.Validation.Backup);
+                ChangeValidationState(lblBackupValidator, false, Validation.Backup);
                 if (path != string.Empty) MessageBox.Show(this, @"Please make sure you selected the game path inside the backup folder of pk3ds!", @"Path not valid", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            ChangeValidationState(lblBackupValidator, true, Pokemon.Validation.Backup);
+            ChangeValidationState(lblBackupValidator, true, Validation.Backup);
             _pathBackup = path;
         }
 
@@ -52,12 +58,12 @@ namespace PokeTool
             var path = _pathValidator.FolderSelector();
             if (!_pathValidator.CheckRomFsFolder(path))
             {
-                ChangeValidationState(lblRomFsValidator, false, Pokemon.Validation.RomFs);
+                ChangeValidationState(lblRomFsValidator, false, Validation.RomFs);
                 if (path != string.Empty) MessageBox.Show(this, @"Please make sure you selected the correct romfs path!", @"Path not valid", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            ChangeValidationState(lblRomFsValidator, true, Pokemon.Validation.RomFs);
+            ChangeValidationState(lblRomFsValidator, true, Validation.RomFs);
             _pathRomFs = path;
         }
 
@@ -113,21 +119,21 @@ namespace PokeTool
 
             // reset if successful
             if (!copyResult) return;
-            ChangeValidationState(lblBackupValidator, false, Pokemon.Validation.Backup);
-            ChangeValidationState(lblRomFsValidator, false, Pokemon.Validation.RomFs);
+            ChangeValidationState(lblBackupValidator, false, Validation.Backup);
+            ChangeValidationState(lblRomFsValidator, false, Validation.RomFs);
         }
 
-        private void ChangeValidationState(Label lbl, bool valid, Pokemon.Validation folder)
+        private void ChangeValidationState(Label lbl, bool valid, Validation folder)
         {
             lbl.Text = valid ? "valid" : "invalid";
             lbl.ForeColor = valid ? Color.Green : Color.Red;
 
             switch (folder)
             {
-                case Pokemon.Validation.Backup:
+                case Validation.Backup:
                     _checkBackup = valid;
                     break;
-                case Pokemon.Validation.RomFs:
+                case Validation.RomFs:
                     _checkRomFs = valid;
                     break;
             }
