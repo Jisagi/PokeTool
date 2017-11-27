@@ -52,13 +52,13 @@ namespace PokeTool.Handler
             switch (game)
             {
                 case Pokemon.Version.X:
-                    return "000400000011C400";
-                case Pokemon.Version.Y:
-                    return "000400000011C500";
-                case Pokemon.Version.OmegaRuby:
                     return "0004000000055D00";
-                case Pokemon.Version.AlphaSaphire:
+                case Pokemon.Version.Y:
                     return "0004000000055E00";
+                case Pokemon.Version.OmegaRuby:
+                    return "000400000011C400";
+                case Pokemon.Version.AlphaSaphire:
+                    return "000400000011C500";
                 case Pokemon.Version.Sun:
                     return "0004000000164800";
                 case Pokemon.Version.Moon:
